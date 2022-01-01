@@ -1,0 +1,18 @@
+{
+    "dependencies": {
+        "discord.js": "^13.5.0",
+        "path": "^0.12.7"
+    },
+    "name": "ts-dis-bot",
+    "version": "1.0.0",
+    "main": "src/index.ts",
+    "devDependencies": {
+        "ts-node": "^10.4.0",
+        "typescript": "^4.5.4"
+    },
+    "scripts": {
+        "start": "ts-node-dev --respawn --transpile-only --poll .\\src\\index.ts"
+    },
+    "author": "M1000.fr",
+    "license": "MIT"
+}
