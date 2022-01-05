@@ -6,6 +6,6 @@ export const command: Command = {
     client_permission: ['SEND_MESSAGES'],
     user_permission: ['ADD_REACTIONS'],
     run: async (client, message, args) => {
-        message.reply(`I have ${Math.round(client.ws.ping)}ms ping`);
+        message.reply(`I have ${client.ws.ping}ms ping`);
     }
 };
