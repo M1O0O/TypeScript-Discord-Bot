@@ -38,6 +38,8 @@ class ExtendedClient extends Client {
             console.log(`Loaded event: ${event.name}`);
             this.on(event.name, event.run.bind(null, this));
         });
+
+        this.login(this.config.token);
     }
 }
 
