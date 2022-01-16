@@ -35,11 +35,18 @@ class ExtendedClient extends Client {
         /* Events */
         const eventPath = path.join(__dirname, '../Events');
         readdirSync(eventPath).forEach(file => {
-            const { event } = require(path.join(eventPath, file));
-            this.events.set(event.name, event);
-            this.prompt.print.info(`Loaded event: ${this.prompt.Colors.Black}${event.name}`);
-            this.on(event.name, event.run.bind(null, this));
+            const events = require(`${eventPath}/${file}`);
+
+            for (var i = 0; i < Object.keys(events).length; i++) {
+                const event = events[Object.keys(events)[i]];
+
+                this.events.set(event.name, event);
+                this.prompt.print.info(`Loaded event: ${this.prompt.Colors.Blue}${event.name}${this.prompt.Colors.White} on file ${this.prompt.Colors.Blue}${file}`);
+                this.on(event.name, event.run.bind(null, this));
+            }
         });
+
+        this.login(this.config.token);
 
         this.login(this.config.token);
     }
