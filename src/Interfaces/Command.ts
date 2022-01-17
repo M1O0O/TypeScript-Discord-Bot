@@ -7,6 +7,9 @@ export interface Command {
     aliases?: string[];
     client_permission?: PermissionResolvable[];
     user_permission?: PermissionResolvable[];
+    argMin: Number;
+    argMax: Number;
+    usage?: string;
     run: {
         (client: Client, message: Message, args: string[]);
     };

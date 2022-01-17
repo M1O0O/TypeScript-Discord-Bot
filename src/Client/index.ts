@@ -38,7 +38,7 @@ class ExtendedClient extends Client {
                 const event = events[Object.keys(events)[i]];
 
                 this.events.set(event.name, event);
-                this.prompt.print.info(`Loaded event: ${this.prompt.Colors.Blue}${event.name}${this.prompt.Colors.White} on file ${this.prompt.Colors.Blue}${file}`);
+                this.prompt.print.info(`Loaded event: ${this.prompt.Colors.Cyan}${event.name}${this.prompt.Colors.White} on file ${this.prompt.Colors.Cyan}${file}`);
                 this.on(event.name, event.run.bind(null, this));
             }
         });
