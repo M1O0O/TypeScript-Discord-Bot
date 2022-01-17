@@ -5,11 +5,11 @@ export const command: Command = {
     aliases: [],
     client_permission: ['SEND_MESSAGES'],
     user_permission: [],
-    argMin: 2,
-    argMax: 2,
-    usage: '<member> <message>',
-    argsType: ['member', 'longstring'],
+    argMin: 1,
+    argMax: 1,
+    usage: '<message>',
+    argsType: ['longstring'],
     run: async (client, message, args) => {
-        message.channel.send(args);
+        message.channel.send(args[0]);
     }
 };
