@@ -24,7 +24,7 @@ const print = {
         console.log(`${Colors.Reset}[${Property.Bright}${Colors.Blue}DEBUG${Colors.Reset}] ${string}`);
     },
     error(string: string) {
-        console.log(`${Colors.Reset}[${Property.Bright}${Colors.Red}ERROR${Colors.Reset}] ${string}`);
+        console.error(`${Colors.Reset}[${Property.Bright}${Colors.Red}ERROR${Colors.Reset}] ${string}`);
     },
     warn(string: string) {
         console.log(`${Colors.Reset}[${Property.Bright}${Colors.Yellow}WARN${Colors.Reset}] ${string}`);
