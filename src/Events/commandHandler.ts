@@ -1,4 +1,4 @@
-import { Event } from "../Interfaces";
+import { Command, Event } from "../Interfaces";
 import Client from '../Client';
 import * as Discord from "discord.js";
 
@@ -19,7 +19,7 @@ function exec(client: Client, message: Discord.Message) {
         !message.content.startsWith(client.config.prefix)
     ) return;
 
-    const args = message.content
+    const args: any = message.content
         .slice(client.config.prefix.length)
         .trim()
         .split(/ +/g);
@@ -41,14 +41,32 @@ function exec(client: Client, message: Discord.Message) {
             `You do not have permission to use this command.`
         ).catch(() => { });
 
+    if (command.argsType) {
+        command.argsType.forEach((type, i) => {
+            if (!args[i]) return;
+            if (type === 'longstring') {
+                args[i] = args.slice(i).join(' ');
+                args.splice(i + 1);
+            }
+
+            if (type === 'number') args[i] = parseInt(args[i]);
+            if (type === 'string') args[i] = args[i].toString();
+            if (type === 'boolean') args[i] = args[i] === 'true';
+            if (type === 'user') args[i] = message.mentions.users.first() || message.guild.members.cache.get(args[i]);
+            if (type === 'channel') args[i] = message.mentions.channels.first() || message.guild.channels.cache.get(args[i]);
+            if (type === 'role') args[i] = message.mentions.roles.first() || message.guild.roles.cache.get(args[i]);
+            if (type === 'member') args[i] = message.mentions.members.first() || message.guild.members.cache.get(args[i]);
+        });
+    }
+
     if (command.argMin && args.length < command.argMin)
         return message.reply(
-            `You need to provide at least ${command.argMin} arguments.\nUsage: \`${client.config.prefix}${command.name} ${command.usage}\``
+            `You need to provide at least ${command.argMin} arguments.${command.usage ? `\nUsage: \`${client.config.prefix}${command.name} ${command.usage}\`` : ''}`
         ).catch(() => { });
 
     if (command.argMax && args.length > command.argMax)
         return message.reply(
-            `You can only provide up to ${command.argMax} arguments.\nUsage: \`${client.config.prefix}${command.name} ${command.usage}\``
+            `You can only provide up to ${command.argMax} arguments.${command.usage ? `\nUsage: \`${client.config.prefix}${command.name} ${command.usage}\`` : ''}`
         ).catch(() => { });
 
     command.run(client, message, args);

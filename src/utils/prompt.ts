@@ -17,7 +17,7 @@ const Property = {
     'Blink': '\x1b[5m',
     'Reverse': '\x1b[7m',
     'Hidden': '\x1b[8m'
-}
+};
 
 const print = {
     debug(string: string) {
@@ -38,10 +38,10 @@ const print = {
     success(string: string) {
         console.log(`${Colors.Reset}[${Property.Bright}${Colors.Green}SUCCESS${Colors.Reset}] ${string}`);
     }
-}
+};
 
 export {
     print,
     Colors,
     Property
-}
+};

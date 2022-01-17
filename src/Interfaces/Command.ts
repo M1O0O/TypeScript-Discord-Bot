@@ -1,6 +1,8 @@
 import Client from '../Client';
 import { Message, PermissionResolvable } from 'discord.js';
 
+type argsType = 'longstring' | 'string' | 'number' | 'boolean' | 'user' | 'member' | 'role' | 'channel';
+
 export interface Command {
     name: string;
     description?: string;
@@ -10,6 +12,7 @@ export interface Command {
     argMin: Number;
     argMax: Number;
     usage?: string;
+    argsType?: argsType[];
     run: {
         (client: Client, message: Message, args: string[]);
     };
