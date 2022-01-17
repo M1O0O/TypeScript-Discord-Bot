@@ -44,8 +44,6 @@ class ExtendedClient extends Client {
         });
 
         this.login(this.config.token);
-
-        this.login(this.config.token);
     }
 }
 
