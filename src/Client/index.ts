@@ -17,20 +17,17 @@ class ExtendedClient extends Client {
         
         /* Commands */
         const commandPath = path.join(__dirname, '../Commands');
-        readdirSync(commandPath).forEach(dir => {
-            const commands = readdirSync(`${commandPath}/${dir}`).filter(file => file.endsWith('.ts'));
-            
-            for (const file of commands) {
-                const { command } = require(`${commandPath}/${dir}/${file}`);
-                
-                this.commands.set(command.name, command);
-                this.prompt.print.info(`Loaded command: ${this.prompt.Colors.Black}${command.name}`);
-                
-                if (command?.aliases.length !== 0) {
-                    command.aliases.forEach(alias => this.aliases.set(alias, command));
-                }
-            };
-        });
+        const commands = readdirSync(commandPath).filter(file => file.endsWith('.ts'));
+
+        for (const file of commands) {
+            const { command } = require(`${commandPath}/${file}`);
+            if (this.commands.has(command.name)) return console.log(`Command ${this.prompt.Colors.Cyan}${command.name}${this.prompt.Colors.Reset} already exists`);
+            this.commands.set(command.name, command);
+            this.prompt.print.info(`Loaded command: ${this.prompt.Colors.Cyan}${command.name}`);
+
+            if (command.aliases && command.aliases.length !== 0)
+                command.aliases.forEach(alias => this.aliases.set(alias, command));
+        };
         
         /* Events */
         const eventPath = path.join(__dirname, '../Events');
