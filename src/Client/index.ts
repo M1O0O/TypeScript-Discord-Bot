@@ -14,7 +14,7 @@ class ExtendedClient extends Client {
 
     public async init() {
         this.prompt.print.info('Initializing...');
-        
+
         /* Commands */
         const commandPath = path.join(__dirname, '../Commands');
         const commands = readdirSync(commandPath).filter(file => file.endsWith('.ts'));
@@ -28,7 +28,7 @@ class ExtendedClient extends Client {
             if (command.aliases && command.aliases.length !== 0)
                 command.aliases.forEach(alias => this.aliases.set(alias, command));
         };
-        
+
         /* Events */
         const eventPath = path.join(__dirname, '../Events');
         readdirSync(eventPath).forEach(file => {
