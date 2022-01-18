@@ -50,7 +50,7 @@ async function exec(client: Client, message: Discord.Message) {
     if (command.argsType) {
         for (let i = 0; i < command.argsType.length; i++) {
             const type = command.argsType[i];
-            if (!args[i]) return;
+            if (!args[i]) break;
 
             if (type === 'longstring') {
                 args[i] = args.slice(i).join(' ');
