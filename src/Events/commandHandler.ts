@@ -59,7 +59,7 @@ async function exec(client: Client, message: Discord.Message) {
 
             if (type === 'number') args[i] = parseInt(args[i]);
             if (type === 'string') args[i] = args[i].toString();
-            if (type === 'boolean') args[i] = args[i].toLowerCase() === 'true';
+            if (type === 'boolean') args[i] = ['true', 'yes', '1'].some(b => b === args[i].toLowerCase());
             if (type === 'user') {
                 args[i] = message.mentions.users.first() || message.guild.members.cache.get(args[i]);
                 if (!args[i]) return message.reply(`User not found.`);
