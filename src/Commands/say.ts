@@ -1,3 +1,4 @@
+import { GuildMember } from "discord.js";
 import { Command } from "../Interfaces";
 
 export const command: Command = {
@@ -7,9 +8,12 @@ export const command: Command = {
     user_permission: [],
     argMin: 2,
     argMax: 2,
-    usage: '<member> <message>',
+    usage: '<member> <text>',
     argsType: ['member', 'longstring'],
     run: async (client, message, args) => {
-        message.channel.send(args.join(' '));
+        const member: GuildMember = args[0] as unknown as GuildMember;
+        const text: string = args[1] as unknown as string;
+        
+        message.channel.send(`${member}: ${text}`);
     }
 };

@@ -1,4 +1,4 @@
-import { Command, Event } from "../Interfaces";
+import { Event } from "../Interfaces";
 import Client from '../Client';
 import * as Discord from "discord.js";
 
@@ -12,7 +12,8 @@ export const onEdit: Event = {
     run: (client, before: Discord.Message, after: Discord.Message) => exec(client, after)
 }
 
-function exec(client: Client, message: Discord.Message) {
+async function exec(client: Client, message: Discord.Message) {
+    if (!(message.channel as Discord.TextChannel).permissionsFor(client.user).has("SEND_MESSAGES")) return client.prompt.print.warn(`I've not the permission to send messages in ${message.channel.id}`);
     if (
         message.author.bot ||
         !message.guild ||
@@ -34,16 +35,23 @@ function exec(client: Client, message: Discord.Message) {
     if (command.client_permission && !clientMember.permissions.has(command.client_permission))
         return message.reply(
             `I don't have the required permissions to execute this command.`
-        ).catch(() => { });
+        ).catch(() => { client.prompt.print.error(`Can't send a message in channel ${message.channel.id}`) });
 
     if (command.user_permission && !message.member.permissions.has(command.user_permission))
         return message.reply(
             `You do not have permission to use this command.`
+        ).catch(() => { client.prompt.print.error(`Can't send a message in channel ${message.channel.id}`) });
+
+    if (command.argMin && args.length < command.argMin)
+        return message.reply(
+            `You need to provide at least ${command.argMin} arguments.${command.usage ? `\nUsage: \`${client.config.prefix}${command.name} ${command.usage}\`` : ''}`
         ).catch(() => { });
 
     if (command.argsType) {
-        command.argsType.forEach((type, i) => {
+        for (let i = 0; i < command.argsType.length; i++) {
+            const type = command.argsType[i];
             if (!args[i]) return;
+
             if (type === 'longstring') {
                 args[i] = args.slice(i).join(' ');
                 args.splice(i + 1);
@@ -51,18 +59,25 @@ function exec(client: Client, message: Discord.Message) {
 
             if (type === 'number') args[i] = parseInt(args[i]);
             if (type === 'string') args[i] = args[i].toString();
-            if (type === 'boolean') args[i] = args[i] === 'true';
-            if (type === 'user') args[i] = message.mentions.users.first() || message.guild.members.cache.get(args[i]);
-            if (type === 'channel') args[i] = message.mentions.channels.first() || message.guild.channels.cache.get(args[i]);
-            if (type === 'role') args[i] = message.mentions.roles.first() || message.guild.roles.cache.get(args[i]);
-            if (type === 'member') args[i] = message.mentions.members.first() || message.guild.members.cache.get(args[i]);
-        });
+            if (type === 'boolean') args[i] = args[i].toLowerCase() === 'true';
+            if (type === 'user') {
+                args[i] = message.mentions.users.first() || message.guild.members.cache.get(args[i]);
+                if (!args[i]) return message.reply(`User not found.`);
+            }
+            if (type === 'channel') {
+                args[i] = message.mentions.channels.first() || message.guild.channels.cache.get(args[i]);
+                if (!args[i]) return message.reply(`Channel not found.`);
+            }
+            if (type === 'role') {
+                args[i] = message.mentions.roles.first() || message.guild.roles.cache.get(args[i]);
+                if (!args[i]) return message.reply(`Role not found.`);
+            }
+            if (type === 'member') {
+                args[i] = message.mentions.members.first() || message.guild.members.cache.get(args[i]);
+                if (!args[i]) return message.reply(`Member not found.`);
+            }
+        };
     }
-
-    if (command.argMin && args.length < command.argMin)
-        return message.reply(
-            `You need to provide at least ${command.argMin} arguments.${command.usage ? `\nUsage: \`${client.config.prefix}${command.name} ${command.usage}\`` : ''}`
-        ).catch(() => { });
 
     if (command.argMax && args.length > command.argMax)
         return message.reply(
