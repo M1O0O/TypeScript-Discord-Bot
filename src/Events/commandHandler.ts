@@ -50,7 +50,7 @@ async function exec(client: Client, message: Discord.Message) {
     if (command.argsType) {
         for (let i = 0; i < command.argsType.length; i++) {
             const type = command.argsType[i];
-            if (!args[i]) return;
+            if (!args[i]) break;
 
             if (type === 'longstring') {
                 args[i] = args.slice(i).join(' ');
@@ -59,7 +59,7 @@ async function exec(client: Client, message: Discord.Message) {
 
             if (type === 'number') args[i] = parseInt(args[i]);
             if (type === 'string') args[i] = args[i].toString();
-            if (type === 'boolean') args[i] = args[i].toLowerCase() === 'true';
+            if (type === 'boolean') args[i] = ['true', 'yes', '1'].some(b => b === args[i].toLowerCase());
             if (type === 'user') {
                 args[i] = message.mentions.users.first() || message.guild.members.cache.get(args[i]);
                 if (!args[i]) return message.reply(`User not found.`);
@@ -79,9 +79,11 @@ async function exec(client: Client, message: Discord.Message) {
         };
     }
 
-    if (command.argMax && args.length > command.argMax)
+    const argMax = command.argsType.length;
+
+    if (argMax && args.length > argMax)
         return message.reply(
-            `You can only provide up to ${command.argMax} arguments.${command.usage ? `\nUsage: \`${client.config.prefix}${command.name} ${command.usage}\`` : ''}`
+            `You can only provide up to ${argMax} arguments.${command.usage ? `\nUsage: \`${client.config.prefix}${command.name} ${command.usage}\`` : ''}`
         ).catch(() => { });
 
     command.run(client, message, args);

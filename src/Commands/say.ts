@@ -7,7 +7,6 @@ export const command: Command = {
     client_permission: ['SEND_MESSAGES'],
     user_permission: [],
     argMin: 2,
-    argMax: 2,
     usage: '<member> <text>',
     argsType: ['member', 'longstring'],
     run: async (client, message, args) => {

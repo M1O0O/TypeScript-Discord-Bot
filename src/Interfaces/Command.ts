@@ -10,7 +10,6 @@ export interface Command {
     client_permission?: PermissionResolvable[];
     user_permission?: PermissionResolvable[];
     argMin: Number;
-    argMax: Number;
     usage?: string;
     argsType?: argsType[];
     run: {
