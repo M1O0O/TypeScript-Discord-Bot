@@ -28,7 +28,7 @@ class ExtendedClient extends Client {
             if (command.aliases && command.aliases.length !== 0)
                 command.aliases.forEach(alias => this.aliases.set(alias, command));
 
-            if (Object.keys(command.args).length > 0) {
+            if (command.args && Object.keys(command.args).length > 0) {
                 let lastArgType;
 
                 for (let i = 0; i < Object.keys(command.args).length; i++) {
