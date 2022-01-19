@@ -53,38 +53,27 @@ async function exec(client: Client, message: Discord.Message) {
         const type = command.args[key].type;
         const messageArgValue = args[i];
 
-        switch (type) {
-            case "longstring":
-                args[i] = args.slice(i).join(' ');
-                args.splice(i + 1);
-                break;
-            case "string":
-                args[i] = args[i] as string;
-                break;
-            case "number":
-                args[i] = parseInt(messageArgValue);
-                break;
-            case "boolean":
-                args[i] = ['true', 'yes', '1'].some(b => b === args[i].toLowerCase());
-                break;
-            case "user":
-                args[i] = message.mentions.users.first() || message.guild.members.cache.get(args[i]);
-                if (!args[i]) return message.reply(`User not found.`);
-                break;
-            case "member":
-                args[i] = message.mentions.members.first() || message.guild.members.cache.get(args[i]);
-                if (!args[i]) return message.reply(`Member not found.`);
-                break;
-            case "role":
-                args[i] = message.mentions.roles.first() || message.guild.roles.cache.get(args[i]);
-                if (!args[i]) return message.reply(`Role not found.`);
-                break;
-            case "channel":
-                args[i] = message.mentions.channels.first() || message.guild.channels.cache.get(args[i]);
-                if (!args[i]) return message.reply(`Channel not found.`);
-                break;
-            default:
-                break;
+        if (type === 'longstring') {
+            args[i] = args.slice(i).join(' ');
+            args.splice(i + 1);
+        } else if (type === 'string') {
+            args[i] = args[i].toString();
+        } else if (type === 'number') {
+            args[i] = parseInt(messageArgValue);
+        } else if (type === 'boolean') {
+            args[i] = ['true', 'yes', '1'].some(b => b === args[i].toLowerCase());
+        } else if (type === 'user') {
+            args[i] = message.mentions.users.first() || message.guild.members.cache.get(args[i]);
+            if (!args[i]) return message.reply(`User not found.`);
+        } else if (type === 'member') {
+            args[i] = message.mentions.members.first() || message.guild.members.cache.get(args[i]);
+            if (!args[i]) return message.reply(`Member not found.`);
+        } else if (type === 'role') {
+            args[i] = message.mentions.roles.first() || message.guild.roles.cache.get(args[i]);
+            if (!args[i]) return message.reply(`Role not found.`);
+        } else if (type === 'channel') {
+            args[i] = message.mentions.channels.first() || message.guild.channels.cache.get(args[i]);
+            if (!args[i]) return message.reply(`Channel not found.`);
         }
     }
 
