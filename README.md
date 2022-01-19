@@ -7,19 +7,30 @@ npm i
 
 ---
 
-## 🛺 New Command *(exemple: print)* : 
+## 🛺 New Command *(exemple: say)* : 
 ```ts
 import { Command } from "../Interfaces";
 
 export const command: Command = {
-    name: 'print',
+    name: 'say',
     aliases: [],
     client_permission: ["SEND_MESSAGES"],
     user_permission: [],
-    argMin: 1,
-    usage: '<text>',
-    argsType: ["longstring"],
-    run: async (client, message, args) => {        
+    argMin: 2,
+    args: {
+        member: {
+            type: 'member',
+            description: 'The member to say something to.'
+        },
+        text: {
+            type: 'longstring',
+            description: 'The text to say.'
+        }
+    },
+    run: async (client, message, args) => {
+        const member: GuildMember = args[0] as unknown as GuildMember;
+        const text: string = args[1] as unknown as string;
+
         message.channel.send(`${member}: ${text}`);
     }
 };
