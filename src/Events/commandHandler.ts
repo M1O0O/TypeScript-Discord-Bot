@@ -29,6 +29,7 @@ async function exec(client: Client, message: Discord.Message) {
     if (!cmd) return;
     const command = client.commands.get(cmd) || client.aliases.get(cmd);
     if (!command) return;
+    const usage = `${client.config.prefix}${command.name} ${Object.keys(command.args).map(key => `<${key}>`).join(' ')}`;
 
     const clientMember = message.guild.members.cache.get(client.user.id);
 
@@ -44,46 +45,54 @@ async function exec(client: Client, message: Discord.Message) {
 
     if (command.argMin && args.length < command.argMin)
         return message.reply(
-            `You need to provide at least ${command.argMin} arguments.${command.usage ? `\nUsage: \`${client.config.prefix}${command.name} ${command.usage}\`` : ''}`
+            `You need to provide at least ${command.argMin} arguments.\n${usage}`
         ).catch(() => { });
 
-    if (command.argsType) {
-        for (let i = 0; i < command.argsType.length; i++) {
-            const type = command.argsType[i];
-            if (!args[i]) break;
+    for (let i = 0; i < Object.keys(command.args).length; i++) {
+        const key = Object.keys(command.args)[i];
+        const type = command.args[key].type;
+        const messageArgValue = args[i];
 
-            if (type === 'longstring') {
+        switch (type) {
+            case "longstring":
                 args[i] = args.slice(i).join(' ');
                 args.splice(i + 1);
-            }
-
-            if (type === 'number') args[i] = parseInt(args[i]);
-            if (type === 'string') args[i] = args[i].toString();
-            if (type === 'boolean') args[i] = ['true', 'yes', '1'].some(b => b === args[i].toLowerCase());
-            if (type === 'user') {
+                break;
+            case "string":
+                args[i] = args[i] as string;
+                break;
+            case "number":
+                args[i] = parseInt(messageArgValue);
+                break;
+            case "boolean":
+                args[i] = ['true', 'yes', '1'].some(b => b === args[i].toLowerCase());
+                break;
+            case "user":
                 args[i] = message.mentions.users.first() || message.guild.members.cache.get(args[i]);
                 if (!args[i]) return message.reply(`User not found.`);
-            }
-            if (type === 'channel') {
-                args[i] = message.mentions.channels.first() || message.guild.channels.cache.get(args[i]);
-                if (!args[i]) return message.reply(`Channel not found.`);
-            }
-            if (type === 'role') {
-                args[i] = message.mentions.roles.first() || message.guild.roles.cache.get(args[i]);
-                if (!args[i]) return message.reply(`Role not found.`);
-            }
-            if (type === 'member') {
+                break;
+            case "member":
                 args[i] = message.mentions.members.first() || message.guild.members.cache.get(args[i]);
                 if (!args[i]) return message.reply(`Member not found.`);
-            }
-        };
+                break;
+            case "role":
+                args[i] = message.mentions.roles.first() || message.guild.roles.cache.get(args[i]);
+                if (!args[i]) return message.reply(`Role not found.`);
+                break;
+            case "channel":
+                args[i] = message.mentions.channels.first() || message.guild.channels.cache.get(args[i]);
+                if (!args[i]) return message.reply(`Channel not found.`);
+                break;
+            default:
+                break;
+        }
     }
 
-    const argMax = command.argsType.length;
+    const argMax = Object.keys(command.args).length;
 
     if (argMax && args.length > argMax)
         return message.reply(
-            `You can only provide up to ${argMax} arguments.${command.usage ? `\nUsage: \`${client.config.prefix}${command.name} ${command.usage}\`` : ''}`
+            `You can only provide up to ${argMax} arguments.\n${usage}`
         ).catch(() => { });
 
     command.run(client, message, args);

@@ -10,8 +10,12 @@ export interface Command {
     client_permission?: PermissionResolvable[];
     user_permission?: PermissionResolvable[];
     argMin: Number;
-    usage?: string;
-    argsType?: argsType[];
+    args: {
+        [key: string]: {
+            type: argsType;
+            description?: string;
+        };
+    }
     run: {
         (client: Client, message: Message, args: string[]);
     };

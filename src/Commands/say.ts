@@ -7,12 +7,20 @@ export const command: Command = {
     client_permission: ['SEND_MESSAGES'],
     user_permission: [],
     argMin: 2,
-    usage: '<member> <text>',
-    argsType: ['member', 'longstring'],
+    args: {
+        member: {
+            type: 'member',
+            description: 'The member to say something to.'
+        },
+        text: {
+            type: 'longstring',
+            description: 'The text to say.'
+        }
+    },
     run: async (client, message, args) => {
         const member: GuildMember = args[0] as unknown as GuildMember;
         const text: string = args[1] as unknown as string;
-        
+
         message.channel.send(`${member}: ${text}`);
     }
 };
