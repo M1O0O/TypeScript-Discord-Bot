@@ -35,7 +35,6 @@ export const command: Command = {
     }
 };
 ```
-- ArgsType : `Array['longstring' | 'string' | 'number' | 'boolean' | 'user' | 'member' | 'role' | 'channel']`
 
 ---
 
