@@ -29,7 +29,7 @@ async function exec(client: Client, message: Discord.Message) {
     if (!cmd) return;
     const command = client.commands.get(cmd) || client.aliases.get(cmd);
     if (!command) return;
-    const usage = `${client.config.prefix}${command.name} ${Object.keys(command.args).map(key => `<${key}>`).join(' ')}`;
+    const usage = `${client.config.prefix}${command.name} ${Object.keys(command.args).map(key => `< **${key}**: ${Object.values(command.args[key])[0]} >`).join(' ')}`;
 
     const clientMember = message.guild.members.cache.get(client.user.id);
 
@@ -48,7 +48,7 @@ async function exec(client: Client, message: Discord.Message) {
             `You need to provide at least ${command.argMin} arguments.\n${usage}`
         ).catch(() => { });
 
-    for (let i = 0; i < Object.keys(command.args).length; i++) {
+    for (let i = 0; i < command.argMin; i++) {
         const key = Object.keys(command.args)[i];
         const type = command.args[key].type;
         const messageArgValue = args[i];

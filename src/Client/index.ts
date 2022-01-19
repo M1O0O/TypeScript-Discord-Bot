@@ -28,16 +28,20 @@ class ExtendedClient extends Client {
             if (command.aliases && command.aliases.length !== 0)
                 command.aliases.forEach(alias => this.aliases.set(alias, command));
 
-            if (command.argsType) {
+            if (Object.keys(command.args).length > 0) {
                 let lastArgType;
 
-                command.argsType.forEach((type, i) => {
+                for (let i = 0; i < Object.keys(command.args).length; i++) {
+                    const key = Object.keys(command.args)[i];
+                    const type = command.args[key].type;
+
                     if (lastArgType === 'longstring') {
                         this.prompt.print.error(`Command ${this.prompt.Colors.Cyan}${command.name}${this.prompt.Colors.Reset} can't have args after a "${this.prompt.Colors.Cyan}longtext${this.prompt.Colors.Reset}" arg.`);
                         process.exit(1);
                     }
+
                     lastArgType = type;
-                });
+                }
             }
         };
 
