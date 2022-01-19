@@ -31,7 +31,7 @@ async function exec(client: Client, message: Discord.Message) {
     if (!command) return;
     const usage = `${client.config.prefix}${command.name} ${Object.keys(command.args).map(key => `< **${key}**: ${Object.values(command.args[key])[0]} >`).join(' ')}`;
     const argMax = Object.keys(command.args).length;
-    
+
     const clientMember = message.guild.members.cache.get(client.user.id);
 
     if (command.client_permission && !clientMember.permissions.has(command.client_permission))
@@ -49,15 +49,12 @@ async function exec(client: Client, message: Discord.Message) {
             `You need to provide at least ${command.argMin} arguments.\n${usage}`
         ).catch(() => { });
 
-    if (argMax && args.length > argMax)
-        return message.reply(
-            `You can only provide up to ${argMax} arguments.\n${usage}`
-        ).catch(() => { });
-
-    for (let i = 0; i < Object.keys(command.args).length; i++) {
+    for (let i = 0; i < args.length; i++) {
         const key = Object.keys(command.args)[i];
         const type = command.args[key].type;
         const messageArgValue = args[i];
+
+        if (!type) break;
 
         if (type === 'longstring') {
             args[i] = args.slice(i).join(' ');
@@ -82,6 +79,11 @@ async function exec(client: Client, message: Discord.Message) {
             if (!args[i]) return message.reply(`Channel not found.`);
         }
     }
+
+    if (argMax && args.length > argMax)
+        return message.reply(
+            `You can only provide up to ${argMax} arguments.\n${usage}`
+        ).catch(() => { });
 
     command.run(client, message, args);
 }
