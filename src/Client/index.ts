@@ -21,8 +21,8 @@ class ExtendedClient extends Client {
 
         for (const file of commands) {
             const { command } = require(`${commandPath}/${file}`);
-            if (this.commands.has(command.name)) return console.log(`Command ${this.prompt.Colors.Cyan}${command.name}${this.prompt.Colors.Reset} already exists`);
-            this.commands.set(command.name, command);
+            if (this.commands.has(command.name.toLowerCase())) return console.log(`Command ${this.prompt.Colors.Cyan}${command.name}${this.prompt.Colors.Reset} already exists`);
+            this.commands.set(command.name.toLowerCase(), command);
             this.prompt.print.info(`Loaded command: ${this.prompt.Colors.Cyan}${command.name}`);
 
             if (command.aliases && command.aliases.length !== 0)
