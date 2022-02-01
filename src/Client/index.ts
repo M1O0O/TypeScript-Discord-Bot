@@ -1,50 +1,33 @@
-import { Client, Collection } from 'discord.js';
+import { ApplicationCommandOption, Client, Collection } from 'discord.js';
 import path from 'path';
 import { readdirSync } from 'fs';
 import { Command, Event, Config } from '../Interfaces';
 import ConfigJson from '../config.json';
 import * as Prompt from '../utils/prompt';
 
+import { REST } from '@discordjs/rest';
+import { Routes } from 'discord-api-types/v9';
+
 class ExtendedClient extends Client {
-    public commands: Collection<string, Command> = new Collection();
-    public aliases: Collection<string, Command> = new Collection();
     public events: Collection<string, Event> = new Collection();
+    public commands: Collection<string, Command> = new Collection();
+    public commandsArray = [];
+
     public config: Config = ConfigJson;
+    public Rest = new REST({ version: '9' }).setToken(this.config.token);
     public prompt = Prompt;
 
     public async init() {
         this.prompt.print.info('Initializing...');
 
-        /* Commands */
-        const commandPath = path.join(__dirname, '../Commands');
-        const commands = readdirSync(commandPath).filter(file => file.endsWith('.ts'));
+        this.registerEvents();
 
-        for (const file of commands) {
-            const { command } = require(`${commandPath}/${file}`);
-            if (this.commands.has(command.name.toLowerCase())) return console.log(`Command ${this.prompt.Colors.Cyan}${command.name}${this.prompt.Colors.Reset} already exists`);
-            this.commands.set(command.name.toLowerCase(), command);
-            this.prompt.print.info(`Loaded command: ${this.prompt.Colors.Cyan}${command.name}`);
+        await this.login(this.config.token);
 
-            if (command.aliases && command.aliases.length !== 0)
-                command.aliases.forEach(alias => this.aliases.set(alias, command));
+        this.registerCommands();
+    }
 
-            if (command.args && Object.keys(command.args).length > 0) {
-                let lastArgType;
-
-                for (let i = 0; i < Object.keys(command.args).length; i++) {
-                    const key = Object.keys(command.args)[i];
-                    const type = command.args[key].type;
-
-                    if (lastArgType === 'longstring') {
-                        this.prompt.print.error(`Command ${this.prompt.Colors.Cyan}${command.name}${this.prompt.Colors.Reset} can't have args after a "${this.prompt.Colors.Cyan}longtext${this.prompt.Colors.Reset}" arg.`);
-                        process.exit(1);
-                    }
-
-                    lastArgType = type;
-                }
-            }
-        };
-
+    private registerEvents() {
         /* Events */
         const eventPath = path.join(__dirname, '../Events');
         readdirSync(eventPath).forEach(file => {
@@ -59,7 +42,29 @@ class ExtendedClient extends Client {
             }
         });
 
-        this.login(this.config.token);
+    }
+
+    private async registerCommands() {
+        const commandPath = path.join(__dirname, '../Commands');
+        const commandsFolder = readdirSync(commandPath);
+
+        for (const cFolder of commandsFolder) {
+            const { command } = require(`${commandPath}/${cFolder}/index`),
+                { options } = require(`${commandPath}/${cFolder}/options`) as { options: ApplicationCommandOption };
+
+            this.commands.set(options.name, command);
+            this.commandsArray.push(options);
+            this.prompt.print.info(`Load command: ${this.prompt.Colors.Cyan}${options.name}`);
+        };
+
+        await this.Rest.put(
+            Routes.applicationCommands(this.user.id),
+            { body: this.commandsArray },
+        ).then(() => {
+            this.prompt.print.info(`Successfully registered commands`);
+        }).catch((e) => {
+            this.prompt.print.error(`Failed to register commands: ${e}`);
+        });
     }
 }
 
