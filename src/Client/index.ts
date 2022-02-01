@@ -11,6 +11,7 @@ import { Routes } from 'discord-api-types/v9';
 class ExtendedClient extends Client {
     public events: Collection<string, Event> = new Collection();
     public commands: Collection<string, Command> = new Collection();
+    public subCommands: Collection<string, Command> = new Collection();
     public commandsArray = [];
 
     public config: Config = ConfigJson;
@@ -49,12 +50,22 @@ class ExtendedClient extends Client {
         const commandsFolder = readdirSync(commandPath);
 
         for (const cFolder of commandsFolder) {
-            const { command } = require(`${commandPath}/${cFolder}/index`),
-                { options } = require(`${commandPath}/${cFolder}/options`) as { options: ApplicationCommandOption };
+            const { options } = require(`${commandPath}/${cFolder}/options`) as { options: ApplicationCommandOption };
 
-            this.commands.set(options.name, command);
             this.commandsArray.push(options);
             this.prompt.print.info(`Load command: ${this.prompt.Colors.Cyan}${options.name}`);
+
+            const subCommands = readdirSync(`${commandPath}/${cFolder}`);
+            for (const subCommand of subCommands) {
+                if (subCommand === 'index.ts' || subCommand === 'options.ts') continue;
+                const { command } = require(`${commandPath}/${cFolder}/${subCommand}`);
+                this.subCommands.set(`${options.name}-${subCommand.split('.')[0]}`, command);
+            }
+
+            if (readdirSync(`${commandPath}/${cFolder}`).includes('index.ts')) {
+                const { command } = require(`${commandPath}/${cFolder}`);
+                this.commands.set(options.name, command);
+            } else this.commands.set(options.name, null);
         };
 
         await this.Rest.put(
