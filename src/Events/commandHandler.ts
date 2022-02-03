@@ -11,10 +11,18 @@ export const onMessage: Event = {
 
         var cExec = client.commands.get(command.commandName);
         let subCommand;
-        try { subCommand = interaction.options?.getSubcommand() } catch (e) { }
-        if (subCommand) cExec = client.subCommands.get(`${command.commandName}-${subCommand}`);
+        let subCommandGroup;
 
-        if (!cExec) return interaction.reply("😓 Command not found");
+        if (!cExec) {
+            try { subCommand = interaction.options?.getSubcommand() } catch (e) { }
+            if (subCommand) cExec = client.subCommands.get(`${command.commandName}-${subCommand}`);
+        }
+        if (!cExec) {
+            try { subCommandGroup = interaction.options?.getSubcommandGroup() } catch (e) { }
+            if (subCommandGroup) cExec = client.subCommandsGroup.get(`${command.commandName}-${subCommandGroup}-${subCommand}`);
+        }
+
+        if (!cExec) return interaction.reply({ content: "😓 Command not found", ephemeral: true });
 
         if (cExec.client_permission) {
             const clientPermissions = interaction.guild.me.permissions;
