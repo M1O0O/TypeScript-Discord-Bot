@@ -26,8 +26,6 @@ class ExtendedClient extends Client {
 
         this.registerEvents();
         await this.registerCommands();
-        await this.registerSubCommands();
-        await this.registerSubCommandsGroup();
 
         await this.login(this.config.token);
 
@@ -61,37 +59,32 @@ class ExtendedClient extends Client {
             } else this.commands.set(options.name, null);
 
             this.prompt.print.info(`Load command: ${this.prompt.Colors.Cyan}${options.name}`);
+            this.registerSubCommands(cmdName);
         }
     }
 
-    private async registerSubCommands() {
-        for (const cmdName of this.commandDir) {
-            const cmdFiles = readdirSync(`${this.commandPath}/${cmdName}`);
+    private async registerSubCommands(cmdName: string) {
+        const cmdFiles = readdirSync(`${this.commandPath}/${cmdName}`);
 
-            for (const File of cmdFiles) {
-                if (File === 'index.ts' || File === 'options.ts' || !File.includes('.ts')) continue;
+        for (const File of cmdFiles) {
+            if (File !== 'index.ts' && File !== 'options.ts' && File.includes('.ts')) {
                 const { command } = require(`${this.commandPath}/${cmdName}/${File}`);
                 this.subCommands.set(`${cmdName}-${File.split('.')[0]}`, command);
 
                 this.prompt.print.info(`Load subCommand: ${this.prompt.Colors.Cyan}${cmdName}/${File.split('.')[0]}`);
             }
+            this.registerSubCommandsGroup(cmdName, File);
         }
     }
 
-    private async registerSubCommandsGroup() {
-        for (const cmdName of this.commandDir) {
-            const cmdFiles = readdirSync(`${this.commandPath}/${cmdName}`);
+    private async registerSubCommandsGroup(cmdName: string, File: string) {
+        if (File.includes('.ts')) return;
+        for (const subCommand of readdirSync(`${this.commandPath}/${cmdName}/${File}`)) {
+            if (!subCommand.includes('.ts')) continue;
+            const { command } = require(`${this.commandPath}/${cmdName}/${File}/${subCommand}`);
+            this.subCommandsGroup.set(`${cmdName}-${File}-${subCommand.split('.')[0]}`, command);
 
-            for (const Folder of cmdFiles) {
-                if (Folder.includes('.ts')) continue;
-                for (const subCommand of readdirSync(`${this.commandPath}/${cmdName}/${Folder}`)) {
-                    if (!subCommand.includes('.ts')) continue;
-                    const { command } = require(`${this.commandPath}/${cmdName}/${Folder}/${subCommand}`);
-                    this.subCommandsGroup.set(`${cmdName}-${Folder}-${subCommand.split('.')[0]}`, command);
-
-                    this.prompt.print.info(`Load subCommandGroup: ${this.prompt.Colors.Cyan}${cmdName}/${Folder.split('.')[0]}/${subCommand.split('.')[0]}`);
-                }
-            }
+            this.prompt.print.info(`Load subCommandGroup: ${this.prompt.Colors.Cyan}${cmdName}/${File.split('.')[0]}/${subCommand.split('.')[0]}`);
         }
     }
 
