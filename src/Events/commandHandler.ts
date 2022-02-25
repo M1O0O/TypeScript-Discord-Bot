@@ -13,14 +13,13 @@ export const onMessage: Event = {
         let subCommand;
         let subCommandGroup;
 
-        if (!cExec) {
-            try { subCommand = interaction.options?.getSubcommand() } catch (e) { }
-            if (subCommand) cExec = client.subCommands.get(`${command.commandName}-${subCommand}`);
-        }
-        if (!cExec) {
-            try { subCommandGroup = interaction.options?.getSubcommandGroup() } catch (e) { }
-            if (subCommandGroup) cExec = client.subCommandsGroup.get(`${command.commandName}-${subCommandGroup}-${subCommand}`);
-        }
+        try {
+            subCommand = interaction.options?.getSubcommand();
+            subCommandGroup = interaction.options?.getSubcommandGroup();
+        } catch (e) { }
+
+        if (!cExec && (subCommand && !subCommandGroup)) cExec = client.subCommands.get(`${command.commandName}-${subCommand}`);
+        else if (!cExec && subCommandGroup) cExec = client.subCommandsGroup.get(`${command.commandName}-${subCommandGroup}-${subCommand}`);
 
         if (!cExec) return interaction.reply({ content: "😓 Command not found", ephemeral: true });
 
