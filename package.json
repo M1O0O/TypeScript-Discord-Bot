@@ -4,8 +4,6 @@
         "discord.js": "^13.5.0",
         "path": "^0.12.7"
     },
-    "name": "typescript-discord-bot",
-    "version": "1.0.0",
     "main": "src/index.ts",
     "devDependencies": {
         "ts-node": "^10.4.0",
@@ -14,6 +12,5 @@
     "scripts": {
         "start": "ts-node-dev --respawn --transpile-only --poll .\\src\\index.ts"
     },
-    "author": "M1000.fr",
-    "license": "MIT"
+    "author": "M1000.fr"
 }
